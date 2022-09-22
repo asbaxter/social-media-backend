@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { Thought, User } = require("../../models");
+const Reaction = require('../../models/Thought');
 
 router.get("/", (req, res) => {
     Thought.find({})
@@ -65,7 +66,7 @@ router.put('/:id', ({ params, body }, res) => {
     .catch(err => res.status(400).json(err));
     })
 
-// Delete a User by id
+
 router.delete('/:id', ({ params }, res) => {
     Thought.findOneAndDelete({ _id: params.id })
             .then(dbThoughtData => {
@@ -77,6 +78,39 @@ router.delete('/:id', ({ params }, res) => {
             })
             .catch(err => res.status(400).json(err));
     });
-    
+
+
+router.put('/:thoughtId/reactions', ({ params, body }, res) => {
+    Thought.findOneAndUpdate(
+        { _id: params.thoughtId },
+        { $push: { reactions: body } },
+        { new: true }
+      )
+        .then(dbThoughtData => {
+          if (!dbThoughtData) {
+            res.status(404).json({ message: 'No thought found with this id!' });
+            return;
+          }
+          res.json(dbThoughtData);
+        })
+        .catch(err => res.json(err));
+    });
+
+router.delete('/:thoughtId/reactions/:reactionId', ({ params }, res) => {
+    Thought.findOneAndUpdate(
+        { _id: params.thoughtId },
+        { $pull: { reactions: {_id: params.reactionId}} }
+      )
+        .then(dbThoughtData => {
+          if (!dbThoughtData) {
+            res.status(404).json({ message: 'No thought found with this id!' });
+            return;
+          }
+          res.json(dbThoughtData);
+        })
+        .catch(err => res.json(err));
+    });
+
+
 
 module.exports = router;
