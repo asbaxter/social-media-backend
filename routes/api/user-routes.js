@@ -57,5 +57,36 @@ router.delete('/:id', ({ params }, res) => {
           .catch(err => res.status(400).json(err));
     });
 
+router.put('/:userId/friends/', ({ params, body }, res) => {
+    User.findOneAndUpdate(
+        { _id: params.userId },
+        { $push: { friends: body } },
+        { new: true }
+        )
+        .then(dbUserData => {
+            if (!dbUserData) {
+            res.status(404).json({ message: 'No user found with this id!' });
+            return;
+            }
+            res.json(dbUserData);
+        })
+        .catch(err => res.json(err));
+    });
+
+router.delete('/:userId/friends/:friendId', ({ params }, res) => {
+    User.findOneAndUpdate(
+        { _id: params.userId },
+        { $pull: { friends: {_id: params.friendId}} }
+        )
+        .then(dbUserData => {
+            if (!dbUserData) {
+            res.status(404).json({ message: 'No user found with this id!' });
+            return;
+            }
+            res.json(dbUserData);
+        })
+        .catch(err => res.json(err));
+    });
+
 
 module.exports = router;
