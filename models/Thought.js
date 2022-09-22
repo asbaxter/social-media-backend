@@ -19,11 +19,16 @@ const reactionSchema = new Schema(
       },
     createdAt: {
         type: Date,
-        default: Date.now,
-        get: createdAtVal => dateFormat(createdAtVal)
-      }
-    }
-);
+        default: Date.now
+      },
+    },
+    {
+      toJSON: {
+          virtuals: true,
+          getters: true
+      },
+        id: false
+  });
 
 
 const thoughtSchema = new Schema(
@@ -40,21 +45,22 @@ const thoughtSchema = new Schema(
       },
       createdAt: {
         type: Date,
-        default: Date.now,
-        get: createdAtVal => dateFormat(createdAtVal)
+        default: Date.now
       },
-      reactions: [ reactionSchema ]
+      reactions: [ reactionSchema ],
     },
     {
       toJSON: {
-        virtuals: true,
-        getters: true
+          virtuals: true,
+          getters: true
       },
-      id: false
-    }
-  );
+        id: false
+  });
 
+thoughtSchema.virtual("reactionCount").get(function () {
+    return this.reactions.length;
+  });
 
-const Thought = model('thought', thoughtSchema);
+const Thought = model('thoughts', thoughtSchema);
 
 module.exports = Thought;
